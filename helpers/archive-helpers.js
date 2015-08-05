@@ -10,32 +10,40 @@ var _ = require('underscore');
  */
 
 exports.paths = {
-  'siteAssets' : path.join(__dirname, '../web/public'),
-  'archivedSites' : path.join(__dirname, '../archives/sites'),
-  'list' : path.join(__dirname, '../archives/sites.txt')
+    'siteAssets': path.join(__dirname, '../web/public'),
+    'archivedSites': path.join(__dirname, '../archives/sites'),
+    'list': path.join(__dirname, '../archives/sites.txt')
 };
 
 // Used for stubbing paths for jasmine tests, do not modify
-exports.initialize = function(pathsObj){
-  _.each(pathsObj, function(path, type) {
-    exports.paths[type] = path;
-  });
+exports.initialize = function(pathsObj) {
+    _.each(pathsObj, function(path, type) {
+        exports.paths[type] = path;
+    });
 };
 
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function(){
+exports.readListOfUrls = function(callback) {
+    //read list of urls from sites.txt
+    var urls;
+
+    fs.readFile(exports.paths.list, function(error, content) {
+        if (error) {
+            console.log("Couldn't read URL");
+        } else {
+            urls = content.toString().split("\n");
+            callback(urls);
+        }
+    });
+
 };
 
-exports.isUrlInList = function(){
-};
+exports.isUrlInList = function() {};
 
-exports.addUrlToList = function(){
-};
+exports.addUrlToList = function() {};
 
-exports.isURLArchived = function(){
-};
+exports.isURLArchived = function() {};
 
-exports.downloadUrls = function(){
-};
+exports.downloadUrls = function() {};
