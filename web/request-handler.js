@@ -34,7 +34,7 @@ exports.handleRequest = function(req, res) {
     }
 
     if (req.method === "POST") {
-        //check and see if the url exists
+        //check and see if the url exists in the
 
         //if exists, indicate that the url is already saved
 
@@ -53,20 +53,13 @@ exports.handleRequest = function(req, res) {
         };
 
         collectData(req, function(data) {
-
+        	res.writeHead(302);
         	var info = data.toString().slice(4);
         	console.log(info);
-            res.writeHead(302);
 
-            fs.appendFile(archives.paths.list, info + '\n', function(error) {
-                if (error) {
-                    console.error("Couldn't append the POSTED url to sites.txt");
-                }
-                console.log("Successfully appended" + info);
-            });
-            
+        	archive.addUrlToList(info);
             res.end();
-
+           
         });
 
     }

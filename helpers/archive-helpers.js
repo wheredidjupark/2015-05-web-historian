@@ -27,23 +27,57 @@ exports.initialize = function(pathsObj) {
 
 exports.readListOfUrls = function(callback) {
     //read list of urls from sites.txt
-    var urls;
 
     fs.readFile(exports.paths.list, function(error, content) {
         if (error) {
             console.log("Couldn't read URL");
         } else {
-            urls = content.toString().split("\n");
-            callback(urls);
+            callback(content.toString().split('\n'));
         }
     });
 
 };
 
-exports.isUrlInList = function() {};
+exports.isUrlInList = function(url, callback) {
+    exports.readListOfUrls(function(urls) {
+        var found = false;
+        for (var i = 0; i < urls.length; i++) {
+            if (urls[i] === url) {
+                found = true;
+                break;
+            }
+        }
+        //callback on boolean value
+        callback(found);
+    });
+};
 
-exports.addUrlToList = function() {};
+exports.addUrlToList = function(url, callback) {
+    console.log("Appending "+ url + " to the list");
 
-exports.isURLArchived = function() {};
+    fs.appendFile(exports.paths.list, url + '\n', function(error) {
+    	fs.readFile(exports.paths.list,{encoding: "utf-8"} ,function(err, content){
+    		console.log(content +"is the content in the requested file");
+    	});
+        if (error) {
+            console.error(url + ": unsuccessful in adding the url to the list");
+		}
+		console.log("successful!");
+    });
 
-exports.downloadUrls = function() {};
+    callback();
+};
+
+exports.isURLArchived = function(url) {
+    //check if url is in the list
+    //if the url is in the list
+    //check if the url is archived under sites/
+    //if yes, return true
+
+    //if not 
+    //if the url isn't in the list, 
+};
+
+exports.downloadUrls = function() {
+    //	
+};
