@@ -2,7 +2,49 @@ var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var fs = require('fs');
 var httpH = require('./http-helpers');
+
+
 // require more modules/folders here!
+var postHandler = function(url) {
+    //check if the url is in the list
+    archive.isUrlInList(url, function(inList) {
+        //if url in the list
+        if (inList) {
+            //check if it is archived
+            archive.isUrlArchived(url, function(isArchived) {
+                if (isArchived) {
+                    console.log(url + "archived");
+                    //redirect if archived
+                    httpH.sendRedirect(res, url + ".html"); //
+                } else {
+                    console.log(url + " archiving in progress");
+                    //download from the url, then redirect
+                    archive.downloadUrl(url, function() {
+                        //httpH.sendRedirect(res, url +".html");
+
+                        httpH.sendRedirect(res, "loading.html");
+                        //redirect to the loading.html page while url is being downloaded
+                    });
+
+
+
+                }
+            });
+
+        } else {
+            console.log(url + " not in the list.");
+            //if url is not in the list, add it to the list, archive it, then redirect to the page.
+            archive.addUrlToList(url, function() {
+                //console.log(url);
+                archive.downloadUrl(url, function() {
+                    //console.log(url);
+                    httpH.sendRedirect(res, "loading.html");
+                });
+
+            });
+        }
+    });
+};
 
 exports.handleRequest = function(req, res) {
 
@@ -29,67 +71,32 @@ exports.handleRequest = function(req, res) {
             });
         }*/
 
+        var routes = {
+        	"/": "/index.html",
+        };
+
     if (req.method === "GET") {
+    	var route = routes[req.url];
+    	if(!route){
+    		routes[req.url] = req.url;
+    	} 
+
+    	httpH.serveAssets(res, route);
+    	/*
         if (req.url === "/") {
             httpH.serveAssets(res, "index.html");
         }
         if (req.url === "/loading.html") {
             httpH.serveAssets(res, "loading.html");
-        } else {
-            var path = req.url.toString().slice(1);
-
-            console.log(path);
-            httpH.serveAssets(res, path); //+".html")
-        }
+        } */
     }
     if (req.method === "POST") {
-    	//I think we can only sendRedirect only once per POST, because response ends when we call the function
+        //I think we can only sendRedirect only once per POST, because response ends when we call the function
 
-        //check and see if the url exists in the list
-        //if exists, indicate that the url is already saved
-
-        //if not, save the url
         httpH.collectData(req, function(data) {
             var url = data.toString().slice(4);
+            postHandler(url);
 
-            //check if the url is in the list
-            archive.isUrlInList(url, function(inList) {
-                //if url in the list
-                if (inList) {
-                    //check if it is archived
-                    archive.isUrlArchived(url, function(isArchived) {
-                        if (isArchived) {
-                        	console.log(url+"archived");
-                            //redirect if archived
-                            httpH.sendRedirect(res, url + ".html"); //
-                        } else {
-                        	console.log(url +" archiving in progress");
-                            //download from the url, then redirect
-                            archive.downloadUrl(url, function() {
-                                //httpH.sendRedirect(res, url +".html");
-
-                                httpH.sendRedirect(res, "loading.html");
-                                //redirect to the loading.html page while url is being downloaded
-                            });
-
-
-
-                        }
-                    });
-
-                } else {
-                	console.log(url +" not in the list")
-                    //if url is not in the list, add it to the list, archive it, then redirect to the page.
-                    archive.addUrlToList(url, function() {
-                        //console.log(url);
-                        archive.downloadUrl(url, function() {
-                            //console.log(url);
-                              httpH.sendRedirect(res, "loading.html");
-                        });
-
-                    });
-                }
-            });
         });
 
     }

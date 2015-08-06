@@ -19,9 +19,9 @@ exports.serveAssets = function(res, asset, callback) {
         encoding: "utf-8"
     };
 
-    fs.readFile(archive.paths.siteAssets + "/" + asset, encoding, function(error, content) {
+    fs.readFile(archive.paths.siteAssets + asset, encoding, function(error, content) {
         if (error) {
-            fs.readFile(archive.paths.archivedSites + "/" + asset, encoding, function(error2, content2) {
+            fs.readFile(archive.paths.archivedSites + asset, encoding, function(error2, content2) {
                 if (error2) {
                     if (callback) {
                         callback();
