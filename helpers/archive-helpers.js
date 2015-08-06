@@ -61,10 +61,10 @@ exports.addUrlToList = function(url, callback) {
 
     fs.appendFile(exports.paths.list, url + '\n', function(error) {
     	//read the file to which you appended the data
-    	/*
+    	
     	fs.readFile(exports.paths.list,{encoding: "utf-8"} ,function(err, content){
     		console.log(content +"is the content in the requested file");
-    	});*/
+    	});
         if (error) {
             console.error(url + ": unsuccessful in adding the url to the list");
 		}

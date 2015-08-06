@@ -67,9 +67,9 @@ exports.handleRequest = function(req, res) {
                 } else {
                 //if url is not in the list, add it to the list, archive it, then redirect to the page.
                     archive.addUrlToList(url, function() {
-                    	console.log(url);
+                    	//console.log(url);
                         archive.downloadUrl(url, function() {
-                        	console.log(url);
+                        	//console.log(url);
                         	httpH.sendRedirect(res, url);
                         });
 
