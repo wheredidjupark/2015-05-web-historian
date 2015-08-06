@@ -1,6 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var url = require('url');
+var http = require('http');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -48,36 +50,47 @@ exports.isUrlInList = function(url, callback) {
             }
         }
         //callback on boolean value
-        callback(found);
+        if(callback){
+        	callback(found);
+        }
     });
 };
 
 exports.addUrlToList = function(url, callback) {
-    console.log("Appending "+ url + " to the list");
+    //console.log("Appending "+ url + " to the list");
 
     fs.appendFile(exports.paths.list, url + '\n', function(error) {
+    	//read the file to which you appended the data
+    	/*
     	fs.readFile(exports.paths.list,{encoding: "utf-8"} ,function(err, content){
     		console.log(content +"is the content in the requested file");
-    	});
+    	});*/
         if (error) {
             console.error(url + ": unsuccessful in adding the url to the list");
 		}
-		console.log("successful!");
+		//console.log("successful!");
     });
 
-    callback();
+    if(callback){
+    	callback();
+    }
 };
 
-exports.isURLArchived = function(url) {
-    //check if url is in the list
-    //if the url is in the list
-    //check if the url is archived under sites/
-    //if yes, return true
+exports.isUrlArchived = function(url, callback) {
+	//look at the node.js API. fs.exists will be deprecated
 
-    //if not 
-    //if the url isn't in the list, 
+	var sitePath = path.join(exports.paths.archivedSites, url);
+	fs.exists(sitePath, function(exists){
+		callback(exists);
+	});
 };
 
-exports.downloadUrls = function() {
-    //	
+exports.downloadUrls = function(urls, callback) {	
+	_.each(urls, function(url){
+
+		http.get("http://"+url, function(res){
+			res.pipe(fs.createWriteStream(exports.paths.archivedSites+"/"+url+"/index.html"));
+		});
+	});
+	callback();
 };
