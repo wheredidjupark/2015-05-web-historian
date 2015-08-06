@@ -10,62 +10,76 @@ exports.handleRequest = function(req, res) {
     //console.log(process.cwd());
     //archive.downloadUrls(["www.google.com", "www.wikipedia.org", "www.hackreactor.com"]);
 
-    if (req.method === "GET" && req.url === "/") {
+    /*
+        if (req.method === "GET" && req.url === "/") {
 
-        fs.readFile(archive.paths.siteAssets + "/index.html", {"encoding": "utf-8"}, function(error, content) {
+            fs.readFile(archive.paths.siteAssets + "/index.html", {"encoding": "utf-8"}, function(error, content) {
 
-            httpH.sendResponse(res, content);
+                httpH.sendResponse(res, content);
 
-        });
-    } else if (req.method === "GET") {
+            });
+        } else if (req.method === "GET") {
 
-        fs.readFile(archive.paths.archivedSites + req.url, { "encoding": "utf-8"}, function(error, content) {
-            if (error) {
-                httpH.send404Response(res);
-            } else {
-                httpH.sendResponse(res, content, 200);
-            }
-        });
+            fs.readFile(archive.paths.archivedSites + req.url, { "encoding": "utf-8"}, function(error, content) {
+                if (error) {
+                    httpH.send404Response(res);
+                } else {
+                    httpH.sendResponse(res, content, 200);
+                }
+            });
+        }*/
+
+    if (req.method === "GET") {
+        if (req.url === "/") {
+            httpH.serveAssets(res, "index.html");
+        } else {
+            var path = req.url.toString().slice(1);
+            console.log(path);
+            httpH.serveAssets(res, path);
+        }
     }
-
     if (req.method === "POST") {
         //check and see if the url exists in the list
         //if exists, indicate that the url is already saved
 
         //if not, save the url
         httpH.collectData(req, function(data) {
-        	var url = data.toString().slice(4);
+            var url = data.toString().slice(4);
 
-        	archive.isUrlInList(url, function(inList){
-        		if(inList){
-					//check if the url is archived
-        			archive.isUrlArchived(url, function(isArchived){
-        				if(isArchived){
-        					//serve up the page
-        				} else {
-        					archive.downloadUrl(url, function(){
-        						//then serve up the page
-        					});
+            //check if the url is in the list
+            archive.isUrlInList(url, function(inList) {
+            	//if url in the list
+                if (inList) {
+                	//check if it is archived
+                    archive.isUrlArchived(url, function(isArchived) {
+                        if (isArchived) {
+                        	//redirect if archived
+                            httpH.sendRedirect(res, url); //
+                        } else {
+                        	//download from the url, then redirect
+                            archive.downloadUrl(url, function() {
+                                httpH.sendRedirect(res, url);
+                            });
 
-        				}
-        			});
-        		} else {
-        			//add it to the list, archive it, then serve the page.
-        			archive.addUrlToList(url, function(){
-        				archive.downloadUrl(url, function(){
-        					//serve the page
-        				});
+                        }
+                    });
 
-        			});
-        		}
-        	});
-            httpH.sendResponse(res, null, 302);
-            archive.addUrlToList(url);
+                } else {
+                //if url is not in the list, add it to the list, archive it, then redirect to the page.
+                    archive.addUrlToList(url, function() {
+                    	console.log(url);
+                        archive.downloadUrl(url, function() {
+                        	console.log(url);
+                        	httpH.sendRedirect(res, url);
+                        });
 
+                    });
+                }
+            });
         });
 
-
-        //serve the loading.html page while POST is being handled
+        httpH.sendRedirect(res, "loading.html");
+        //redirect to the loading.html page while POST is being handled
     }
 
     //res.end(archive.paths.list);
