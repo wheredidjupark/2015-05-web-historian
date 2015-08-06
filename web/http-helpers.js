@@ -45,6 +45,7 @@ exports.serveAssets = function(res, asset, callback) {
 
 
 exports.sendRedirect = function(response, location, status){
+	console.log("redirecting to "+location);
   status = status || 302;
   response.writeHead(status, {Location: location});
   response.end();

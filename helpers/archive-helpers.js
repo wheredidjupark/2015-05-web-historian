@@ -62,9 +62,10 @@ exports.addUrlToList = function(url, callback) {
     fs.appendFile(exports.paths.list, url + '\n', function(error) {
     	//read the file to which you appended the data
     	
+    	/*
     	fs.readFile(exports.paths.list,{encoding: "utf-8"} ,function(err, content){
     		console.log(content +"is the content in the requested file");
-    	});
+    	});*/
         if (error) {
             console.error(url + ": unsuccessful in adding the url to the list");
 		}
@@ -79,7 +80,8 @@ exports.addUrlToList = function(url, callback) {
 exports.isUrlArchived = function(url, callback) {
 	//look at the node.js API. fs.exists will be deprecated
 
-	var sitePath = path.join(exports.paths.archivedSites, url);
+	var sitePath = path.join(exports.paths.archivedSites, url+".html");
+	console.log(sitePath + " is the sitePath for isUrlArchived");
 	fs.exists(sitePath, function(exists){
 		callback(exists);
 	});
@@ -100,7 +102,7 @@ exports.downloadUrls = function(urls, callback) {
 
 exports.downloadUrl = function(url, callback){
 	http.get({host: url}, function(res){
-		res.pipe(fs.createWriteStream(exportspaths.archivedSites+"/"+url+".html"));
+		res.pipe(fs.createWriteStream(exports.paths.archivedSites+"/"+url+".html"));
 	});
 
 	if(callback){

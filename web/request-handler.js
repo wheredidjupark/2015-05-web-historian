@@ -32,13 +32,19 @@ exports.handleRequest = function(req, res) {
     if (req.method === "GET") {
         if (req.url === "/") {
             httpH.serveAssets(res, "index.html");
+        }
+        if (req.url === "/loading.html") {
+            httpH.serveAssets(res, "loading.html");
         } else {
             var path = req.url.toString().slice(1);
+
             console.log(path);
-            httpH.serveAssets(res, path);
+            httpH.serveAssets(res, path); //+".html")
         }
     }
     if (req.method === "POST") {
+    	//I think we can only sendRedirect only once per POST, because response ends when we call the function
+
         //check and see if the url exists in the list
         //if exists, indicate that the url is already saved
 
@@ -48,29 +54,37 @@ exports.handleRequest = function(req, res) {
 
             //check if the url is in the list
             archive.isUrlInList(url, function(inList) {
-            	//if url in the list
+                //if url in the list
                 if (inList) {
-                	//check if it is archived
+                    //check if it is archived
                     archive.isUrlArchived(url, function(isArchived) {
                         if (isArchived) {
-                        	//redirect if archived
-                            httpH.sendRedirect(res, url); //
+                        	console.log(url+"archived");
+                            //redirect if archived
+                            httpH.sendRedirect(res, url + ".html"); //
                         } else {
-                        	//download from the url, then redirect
+                        	console.log(url +" archiving in progress");
+                            //download from the url, then redirect
                             archive.downloadUrl(url, function() {
-                                httpH.sendRedirect(res, url);
+                                //httpH.sendRedirect(res, url +".html");
+
+                                httpH.sendRedirect(res, "loading.html");
+                                //redirect to the loading.html page while url is being downloaded
                             });
+
+
 
                         }
                     });
 
                 } else {
-                //if url is not in the list, add it to the list, archive it, then redirect to the page.
+                	console.log(url +" not in the list")
+                    //if url is not in the list, add it to the list, archive it, then redirect to the page.
                     archive.addUrlToList(url, function() {
-                    	//console.log(url);
+                        //console.log(url);
                         archive.downloadUrl(url, function() {
-                        	//console.log(url);
-                        	httpH.sendRedirect(res, url);
+                            //console.log(url);
+                              httpH.sendRedirect(res, "loading.html");
                         });
 
                     });
@@ -78,8 +92,6 @@ exports.handleRequest = function(req, res) {
             });
         });
 
-        httpH.sendRedirect(res, "loading.html");
-        //redirect to the loading.html page while POST is being handled
     }
 
     //res.end(archive.paths.list);
