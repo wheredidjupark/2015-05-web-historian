@@ -4,8 +4,7 @@ var fs = require('fs');
 var httpH = require('./http-helpers');
 
 
-// require more modules/folders here!
-var postHandler = function(url) {
+var postUrlHandler = function(url) {
     //check if the url is in the list
     archive.isUrlInList(url, function(inList) {
         //if url in the list
@@ -18,12 +17,10 @@ var postHandler = function(url) {
                     httpH.sendRedirect(res, url + ".html"); //
                 } else {
                     console.log(url + " archiving in progress");
-                    //download from the url, then redirect
+                    //download from the url, then redirect to the loading page
                     archive.downloadUrl(url, function() {
-                        //httpH.sendRedirect(res, url +".html");
 
                         httpH.sendRedirect(res, "loading.html");
-                        //redirect to the loading.html page while url is being downloaded
                     });
 
 
@@ -35,9 +32,7 @@ var postHandler = function(url) {
             console.log(url + " not in the list.");
             //if url is not in the list, add it to the list, archive it, then redirect to the page.
             archive.addUrlToList(url, function() {
-                //console.log(url);
                 archive.downloadUrl(url, function() {
-                    //console.log(url);
                     httpH.sendRedirect(res, "loading.html");
                 });
 
@@ -47,59 +42,27 @@ var postHandler = function(url) {
 };
 
 exports.handleRequest = function(req, res) {
-
-    //console.log(req.url);
     //console.log(process.cwd());
-    //archive.downloadUrls(["www.google.com", "www.wikipedia.org", "www.hackreactor.com"]);
 
-    /*
-        if (req.method === "GET" && req.url === "/") {
-
-            fs.readFile(archive.paths.siteAssets + "/index.html", {"encoding": "utf-8"}, function(error, content) {
-
-                httpH.sendResponse(res, content);
-
-            });
-        } else if (req.method === "GET") {
-
-            fs.readFile(archive.paths.archivedSites + req.url, { "encoding": "utf-8"}, function(error, content) {
-                if (error) {
-                    httpH.send404Response(res);
-                } else {
-                    httpH.sendResponse(res, content, 200);
-                }
-            });
-        }*/
-
-        var routes = {
-        	"/": "/index.html",
-        };
+    var routes = {
+        "/": "/index.html",
+    };
 
     if (req.method === "GET") {
-    	var route = routes[req.url];
-    	if(!route){
-    		routes[req.url] = req.url;
-    	} 
-
-    	httpH.serveAssets(res, route);
-    	/*
-        if (req.url === "/") {
-            httpH.serveAssets(res, "index.html");
+    	//serve up the url after saving the route
+        var route = routes[req.url];
+        if (!route) {
+            routes[req.url] = req.url;
         }
-        if (req.url === "/loading.html") {
-            httpH.serveAssets(res, "loading.html");
-        } */
+        httpH.serveAssets(res, route);
     }
     if (req.method === "POST") {
         //I think we can only sendRedirect only once per POST, because response ends when we call the function
 
         httpH.collectData(req, function(data) {
             var url = data.toString().slice(4);
-            postHandler(url);
-
+            postUrlHandler(url);
         });
 
     }
-
-    //res.end(archive.paths.list);
 };
