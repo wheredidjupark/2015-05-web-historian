@@ -15,6 +15,11 @@ exports.serveAssets = function(res, asset, callback) {
   // Write some code here that helps serve up your static files!
   // (Static files are things like html (yours or archived from others...), css, or anything that doesn't change often.)
 
+
+//data 
+fs.readFile(archive.);
+  exports.sendResponse(res, data, 200);
+
 };
 
 exports.collectData = function(req, callback){
@@ -37,7 +42,7 @@ exports.send404Response = function(res){
 
 exports.sendResponse = function(res, data, statCode){
 	var statusCode = statCode || 200;
-	res.writeHead(200, exports.headers);
+	res.writeHead(statusCode, exports.headers);
 	res.end(data);
 };
 // As you progress, keep thinking about what helper functions you can put here!

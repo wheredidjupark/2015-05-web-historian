@@ -88,9 +88,22 @@ exports.isUrlArchived = function(url, callback) {
 exports.downloadUrls = function(urls, callback) {	
 	_.each(urls, function(url){
 
-		http.get("http://"+url, function(res){
-			res.pipe(fs.createWriteStream(exports.paths.archivedSites+"/"+url+"/index.html"));
+		http.get({host: url}, function(res){
+			console.log(exports.paths.archivedSites+"/"+url+".html");
+			res.pipe(fs.createWriteStream(exports.paths.archivedSites+"/"+url+".html"));
 		});
 	});
-	callback();
+	if(callback){
+		callback();
+	}
+};
+
+exports.downloadUrl = function(url, callback){
+	http.get({host: url}, function(res){
+		res.pipe(fs.createWriteStream(exportspaths.archivedSites+"/"+url+".html"));
+	});
+
+	if(callback){
+		callback();
+	}
 };
