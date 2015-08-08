@@ -4,8 +4,9 @@ var fs = require('fs');
 var httpH = require('./http-helpers');
 
 
-var postUrlHandler = function(url) {
+var postUrlHandler = function(url,response) {
     //check if the url is in the list
+    //callback hell...
     archive.isUrlInList(url, function(inList) {
         //if url in the list
         if (inList) {
@@ -14,13 +15,13 @@ var postUrlHandler = function(url) {
                 if (isArchived) {
                     console.log(url + "archived");
                     //redirect if archived
-                    httpH.sendRedirect(res, url + ".html"); //
+                    httpH.sendRedirect(response, url + ".html"); //
                 } else {
                     console.log(url + " archiving in progress");
                     //download from the url, then redirect to the loading page
                     archive.downloadUrl(url, function() {
 
-                        httpH.sendRedirect(res, "loading.html");
+                        httpH.sendRedirect(response, "loading.html");
                     });
 
 
@@ -33,7 +34,7 @@ var postUrlHandler = function(url) {
             //if url is not in the list, add it to the list, archive it, then redirect to the page.
             archive.addUrlToList(url, function() {
                 archive.downloadUrl(url, function() {
-                    httpH.sendRedirect(res, "loading.html");
+                    httpH.sendRedirect(response, "loading.html");
                 });
 
             });
@@ -42,26 +43,18 @@ var postUrlHandler = function(url) {
 };
 
 exports.handleRequest = function(req, res) {
-    //console.log(process.cwd());
-
-    var routes = {
-        "/": "/index.html",
-    };
+ 
 
     if (req.method === "GET") {
-    	//serve up the url after saving the route
-        var route = routes[req.url];
-        if (!route) {
-            routes[req.url] = req.url;
-        }
-        httpH.serveAssets(res, route);
+    	var pathName = (req.url === "/")? "/index.html" : req.url;
+        httpH.serveAssets(res, pathName);
     }
     if (req.method === "POST") {
         //I think we can only sendRedirect only once per POST, because response ends when we call the function
 
         httpH.collectData(req, function(data) {
             var url = data.toString().slice(4);
-            postUrlHandler(url);
+            postUrlHandler(url,res);
         });
 
     }
