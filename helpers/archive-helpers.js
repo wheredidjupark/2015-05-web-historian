@@ -69,7 +69,7 @@ exports.addUrlToList = function(url, callback) {
         if (error) {
             console.error(url + ": unsuccessful in adding the url to the list");
 		}
-		//console.log("successful!");
+		console.log("adding " + url + " to the list successful!");
     });
 
     if(callback){
